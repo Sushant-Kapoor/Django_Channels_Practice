@@ -19,10 +19,19 @@ class MySyncConsumer(SyncConsumer):
         })
 
     def websocket_receive(self, event):
-        print('Message received from client...', event)
+        print('Message received from client...', event['text'])
+        print('Type of message received from client', type(event['text']))
+        async_to_sync(self.channel_layer.group_send)('programmers', {
+            'type': 'chat.message',
+            'message': event['text']
+        })
+
+    def chat_message(self, event):
+        print('Event...', event)
+        print('Actual data...', event['message'])
         self.send({
             'type': 'websocket.send',
-            'text': 'This is from server to client'
+            'text': event['message']
         })
 
     def websocket_disconnect(self, event):
